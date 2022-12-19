@@ -21,13 +21,25 @@
 const GETTEXT_DOMAIN = 'my-indicator-extension';
 
 const { GObject, St } = imports.gi;
+const Gio = imports.gi.Gio;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
+const ByteArray = imports.byteArray;
+
 const _ = ExtensionUtils.gettext;
+
+/* exported arrayToString */
+function arrayToString(array) {
+    if (array instanceof Uint8Array) {
+        return ByteArray.toString(array);
+    }
+    return array.toString();
+}
+
 
 const Indicator = GObject.registerClass(
 class Indicator extends PanelMenu.Button {
@@ -45,9 +57,20 @@ class Indicator extends PanelMenu.Button {
         lbl.set_text("hey-ya")
         this.add_child(lbl)
 
+
+        const file = Gio.file_new_for_path("/home/m/mjav.txt");
+        const [result, contents] = file.load_contents(null);
+        if (!result) {
+            this.logger.error(`Could not read file: ${this.path}`);
+            throw new Errors.IoError(`JsTextFile: trying to load non-existing file ${this.path}`,
+                this.logger.error);
+        }
+        let content = arrayToString(contents);
+
         setTimeout(function(){
-            lbl.set_text("Hello World")
+            lbl.set_text(content)
         }, 8000);
+
 
         /*
         let item = new PopupMenu.PopupMenuItem(_('Show Notification'));
