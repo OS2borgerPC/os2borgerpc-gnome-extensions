@@ -42,50 +42,64 @@ function arrayToString(array) {
 
 
 const Indicator = GObject.registerClass(
-class Indicator extends PanelMenu.Button {
-    _init() {
-        super._init(0.0, _('Logout Timer'));
+    class Indicator extends PanelMenu.Button {
+        _init() {
+            super._init(0.0, _('Logout Timer'));
 
-        /*
-        this.add_child(new St.Icon({
-            icon_name: 'face-smile-symbolic',
-            style_class: 'system-status-icon',
-        }));
-        */
+            /*
+            this.add_child(new St.Icon({
+                icon_name: 'face-smile-symbolic',
+                style_class: 'system-status-icon',
+            }));
+            */
 
-        let lbl = new St.Label
-        lbl.set_text("hey-ya")
-        this.add_child(lbl)
+            /*         let lbl = new St.Label
+                    lbl.set_text("hey-ya")
+                    this.add_child(lbl) */
 
 
-        /* const file = Gio.file_new_for_path("/home/m/mjav.txt");
-        const [result, contents] = file.load_contents(null);
-        if (!result) {
-            this.logger.error(`Could not read file: ${this.path}`);
-            throw new Errors.IoError(`JsTextFile: trying to load non-existing file ${this.path}`,
-                this.logger.error);
+            /* const file = Gio.file_new_for_path("/home/m/mjav.txt");
+            const [result, contents] = file.load_contents(null);
+            if (!result) {
+                this.logger.error(`Could not read file: ${this.path}`);
+                throw new Errors.IoError(`JsTextFile: trying to load non-existing file ${this.path}`,
+                    this.logger.error);
+            }
+            let content = arrayToString(contents); */
+
+            /*         setTimeout(function(){
+                        lbl.set_text(content)
+                    }, 8000); */
+
+            /*
+            let item = new PopupMenu.PopupMenuItem(_('Show Notification'));
+            item.connect('activate', () => {
+                Main.notify(_('Whatʼs up, volkswagen?'));
+            });
+            this.menu.addMenuItem(item);
+            */
+
+            let lbl = new St.Label
+            this.add_child(lbl)
+
+            // Read from config-file
+            let sec = 10
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms))
+            }
+
+            (async () => {
+                sec--
+                while ( sec > 0 ) {
+                    await sleep(1000)
+                    lbl.set_text(sec.toString())
+                    sec--                
+                }
+                lbl.set_text("Session ended.")
+            })();
         }
-        let content = arrayToString(contents); */
-
-/*         setTimeout(function(){
-            lbl.set_text(content)
-        }, 8000); */
-        
-        let i = 10
-        function test() {
-            lbl.set_text(c.toString())
-            i--;
-        }
-        setInterval(test(), (i*1000));
-        /*
-        let item = new PopupMenu.PopupMenuItem(_('Show Notification'));
-        item.connect('activate', () => {
-            Main.notify(_('Whatʼs up, volkswagen?'));
-        });
-        this.menu.addMenuItem(item);
-        */
-    }
-});
+    });
 
 class Extension {
     constructor(uuid) {
