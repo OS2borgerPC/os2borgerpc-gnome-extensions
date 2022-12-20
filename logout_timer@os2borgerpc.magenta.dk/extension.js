@@ -32,6 +32,10 @@ const ByteArray = imports.byteArray;
 
 const _ = ExtensionUtils.gettext;
 
+// format: TIME_MINUTES=<MINUTES>
+//const logout_timers_conf_file = '/usr/share/os2borgerpc/logout_timer.conf'
+const logout_timers_conf_file = '/home/heini/.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.conf'
+
 /* exported arrayToString */
 function arrayToString(array) {
     if (array instanceof Uint8Array) {
@@ -46,55 +50,31 @@ const Indicator = GObject.registerClass(
         _init() {
             super._init(0.0, _('Logout Timer'));
 
-            /*
-            this.add_child(new St.Icon({
-                icon_name: 'face-smile-symbolic',
-                style_class: 'system-status-icon',
-            }));
-            */
-
-            /*         let lbl = new St.Label
-                    lbl.set_text("hey-ya")
-                    this.add_child(lbl) */
-
-
-            /* const file = Gio.file_new_for_path("/home/m/mjav.txt");
+            const file = Gio.file_new_for_path(logout_timers_conf_file);
             const [result, contents] = file.load_contents(null);
             if (!result) {
                 this.logger.error(`Could not read file: ${this.path}`);
                 throw new Errors.IoError(`JsTextFile: trying to load non-existing file ${this.path}`,
                     this.logger.error);
             }
-            let content = arrayToString(contents); */
+            let content = arrayToString(contents);
 
-            /*         setTimeout(function(){
-                        lbl.set_text(content)
-                    }, 8000); */
+            let sec = content.split("=")[1]
 
-            /*
-            let item = new PopupMenu.PopupMenuItem(_('Show Notification'));
-            item.connect('activate', () => {
-                Main.notify(_('Whatʼs up, volkswagen?'));
-            });
-            this.menu.addMenuItem(item);
-            */
-
-            let lbl = new St.Label
+            let lbl = new St.Label({
+                style_class: 'system-status-icon'
+            })
             this.add_child(lbl)
-
-            // Read from config-file
-            let sec = 10
 
             function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms))
             }
 
             (async () => {
-                sec--
-                while ( sec > 0 ) {
+                while (sec >= 0) {
                     await sleep(1000)
                     lbl.set_text(sec.toString())
-                    sec--                
+                    sec--
                 }
                 lbl.set_text("Session ended.")
             })();
