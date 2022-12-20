@@ -22,6 +22,7 @@ const GETTEXT_DOMAIN = 'logout-timer-extension';
 
 const { GObject, St } = imports.gi;
 const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
@@ -76,7 +77,13 @@ const Indicator = GObject.registerClass(
                     lbl.set_text(sec.toString())
                     sec--
                 }
-                lbl.set_text("Session ended.")
+                // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
+                try {
+                    GLib.spawn_command_line_async('gnome-session-quit --force');
+                } catch (e) {
+                    logError(e);
+                }
+
             })();
         }
     });
