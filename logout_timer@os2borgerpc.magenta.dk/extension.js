@@ -18,7 +18,7 @@
 
 /* exported init */
 
-const GETTEXT_DOMAIN = 'my-indicator-extension';
+const GETTEXT_DOMAIN = 'logout-timer-extension';
 
 const { GObject, St } = imports.gi;
 const Gio = imports.gi.Gio;
@@ -44,7 +44,7 @@ function arrayToString(array) {
 const Indicator = GObject.registerClass(
 class Indicator extends PanelMenu.Button {
     _init() {
-        super._init(0.0, _('My Shiny Indicator'));
+        super._init(0.0, _('Logout Timer'));
 
         /*
         this.add_child(new St.Icon({
@@ -58,20 +58,25 @@ class Indicator extends PanelMenu.Button {
         this.add_child(lbl)
 
 
-        const file = Gio.file_new_for_path("/home/m/mjav.txt");
+        /* const file = Gio.file_new_for_path("/home/m/mjav.txt");
         const [result, contents] = file.load_contents(null);
         if (!result) {
             this.logger.error(`Could not read file: ${this.path}`);
             throw new Errors.IoError(`JsTextFile: trying to load non-existing file ${this.path}`,
                 this.logger.error);
         }
-        let content = arrayToString(contents);
+        let content = arrayToString(contents); */
 
-        setTimeout(function(){
+/*         setTimeout(function(){
             lbl.set_text(content)
-        }, 8000);
-
-
+        }, 8000); */
+        
+        let i = 10
+        function test() {
+            lbl.set_text(c.toString())
+            i--;
+        }
+        setInterval(test(), (i*1000));
         /*
         let item = new PopupMenu.PopupMenuItem(_('Show Notification'));
         item.connect('activate', () => {

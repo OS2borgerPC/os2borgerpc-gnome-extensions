@@ -1,0 +1,9 @@
+{
+  "name": "Logout Timer",
+  "description": "Logs user out after n minuts",
+  "uuid": "logout_timer@os2borgerpc.magenta.dk",
+  "shell-version": [
+    "43"
+  ],
+  "url": "https://magenta.dk"
+}
