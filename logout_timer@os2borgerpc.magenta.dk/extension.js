@@ -60,22 +60,22 @@ const Indicator = GObject.registerClass(
             }
             let content = arrayToString(contents);
 
-            let sec = content.split("=")[1]
+            let sec = content.split("=")[1];
 
             let lbl = new St.Label({
                 style_class: 'system-status-icon'
             })
-            this.add_child(lbl)
+            this.add_child(lbl);
 
             function sleep(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms))
+                return new Promise(resolve => setTimeout(resolve, ms));
             }
 
             (async () => {
                 while (sec >= 0) {
-                    await sleep(1000)
-                    lbl.set_text(sec.toString())
-                    sec--
+                    await sleep(1000);
+                    lbl.set_text(sec.toString());
+                    sec--;
                 }
                 // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
                 try {
