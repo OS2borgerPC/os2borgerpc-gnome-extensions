@@ -46,29 +46,24 @@ function arrayToString(array) {
     return array.toString();
 }
 
+// Prettify the counter: Only show hours and minutes if there are any of them left
+// padStart is there to add leading zeros to seconds so it shows e.g. 1:01 instead of 1:1
 function toTimeString(totalSeconds) {
-    const totalMs = totalSeconds * 1000;
-    // Under 10 seconds
-    if (totalMs < 10000) {
-        return new Date(totalMs).toISOString().slice(18, 19);
+    const total = new Date(totalSeconds * 1000)
+    // Only seconds left
+    if (totalSeconds < 60) {
+        return total.getSeconds().toString()
     }
-    // Under 1 min
-    else if (totalMs < 60000) {
-        return new Date(totalMs).toISOString().slice(17, 19);
+    // Only minutes left
+    else if (totalSeconds < 3600) {
+        return total.getMinutes() + ":"
+             + total.getSeconds().toString().padStart(2, "0")
     }
-    // Under 10 min
-    else if (totalMs < 600000) {
-        return new Date(totalMs).toISOString().slice(15, 19);
-    }
-    // Over 10 min
-    else if (totalMs < 3600000) {
-        return new Date(totalMs).toISOString().slice(14, 19);
-    }
-    // Over 60min
     else {
-        return new Date(totalMs).toISOString().slice(11, 19);
+        return total.getHours() + ":"
+            + total.getMinutes().toString().padStart(2, '0') + ":"
+            + total.getSeconds().toString().padStart(2, '0')
     }
-    return result;
 }
 
 
@@ -107,7 +102,7 @@ const Indicator = GObject.registerClass(
                     if (secondsToLogOff === headsUp * 60) {
 
                         // Text-input fLyttes til Config(?)
-                        let headsUpText = `notify-send \"OBS! Tiden er snart oppe!\"`;
+                        let headsUpText = 'notify-send \"OBS! Tiden er snart oppe!\"';
                         // Notify user
                         GLib.spawn_command_line_async(headsUpText);
                         // Change label text color
