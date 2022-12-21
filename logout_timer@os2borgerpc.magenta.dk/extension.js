@@ -45,6 +45,31 @@ function arrayToString(array) {
     return array.toString();
 }
 
+function toTimeString(totalSeconds) {
+    const totalMs = totalSeconds * 1000;
+    // Under 10 seconds
+    if (totalMs < 10000) {
+        return new Date(totalMs).toISOString().slice(18, 19);
+    }
+    // Under 1 min
+    else if (totalMs < 60000) {
+        return new Date(totalMs).toISOString().slice(17, 19);
+    }
+    // Under 10 min
+    else if (totalMs < 600000) {
+        return new Date(totalMs).toISOString().slice(15, 19);
+    }
+    // Over 10 min
+    else if (totalMs < 3600000) {
+        return new Date(totalMs).toISOString().slice(14, 19);
+    }
+    // Over 60min
+    else {
+        return new Date(totalMs).toISOString().slice(11, 19);
+    }
+    return result;
+}
+
 
 const Indicator = GObject.registerClass(
     class Indicator extends PanelMenu.Button {
@@ -60,7 +85,10 @@ const Indicator = GObject.registerClass(
             }
             let content = arrayToString(contents);
 
-            let sec = content.split("=")[1];
+            let minutesToLogOff = parseInt(content.split("=")[1]);
+
+            let tmpHeadsUpInputFromFile = "1";
+            let headsUp = parseInt(tmpHeadsUpInputFromFile);
 
             let lbl = new St.Label({
                 style_class: 'system-status-icon'
@@ -71,15 +99,27 @@ const Indicator = GObject.registerClass(
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
 
+            let secondsToLogOff = minutesToLogOff * 60;
             (async () => {
-                while (sec >= 0) {
+                while (secondsToLogOff >= 0) {
                     await sleep(1000);
-                    lbl.set_text(sec.toString());
-                    sec--;
+                    if (secondsToLogOff === headsUp * 60) {
+
+                        // Text-input fLyttes til Config(?)
+                        let headsUpText = `notify-send \"OBS! Tiden er snart oppe!\"`;
+                        // Notify user
+                        GLib.spawn_command_line_async(headsUpText);
+
+                        // Invert label colors -> Marcus? :D
+                    }
+                    let formattedTime = toTimeString(secondsToLogOff)
+                    lbl.set_text(formattedTime);
+                    secondsToLogOff--;
                 }
                 // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
                 try {
-                    GLib.spawn_command_line_async('gnome-session-quit --force');
+                    //GLib.spawn_command_line_async('gnome-session-quit --force');
+                    lbl.set_text("K.O.");
                 } catch (e) {
                     logError(e);
                 }
