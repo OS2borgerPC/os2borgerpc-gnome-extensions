@@ -109,8 +109,9 @@ const Indicator = GObject.registerClass(
                         let headsUpText = `notify-send \"OBS! Tiden er snart oppe!\"`;
                         // Notify user
                         GLib.spawn_command_line_async(headsUpText);
+                        // Invert label colors
+                        lbl.set_style_class_name('system-status-icon label-text-below-treshold')
 
-                        // Invert label colors -> Marcus? :D
                     }
                     let formattedTime = toTimeString(secondsToLogOff)
                     lbl.set_text(formattedTime);
