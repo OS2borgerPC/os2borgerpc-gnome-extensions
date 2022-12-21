@@ -1,8 +1,7 @@
 .label-text-below-treshold {
     color: black;
-    background: magenta;
 }
 
 .button-background-below-treshold {
-    background: rgb(255, 0, 255);
+    background: magenta;
 }
