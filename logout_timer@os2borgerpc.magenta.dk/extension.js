@@ -35,7 +35,8 @@ const _ = ExtensionUtils.gettext;
 
 // format: TIME_MINUTES=<MINUTES>
 //const logout_timers_conf_file = '/usr/share/os2borgerpc/logout_timer.conf'
-const logout_timers_conf_file = '/home/heini/.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.conf'
+// While testing:
+const logout_timers_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.conf'
 
 /* exported arrayToString */
 function arrayToString(array) {
