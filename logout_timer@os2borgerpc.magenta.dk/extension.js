@@ -27,7 +27,6 @@ const GLib = imports.gi.GLib;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
 
 const ByteArray = imports.byteArray;
 
@@ -94,8 +93,9 @@ const Indicator = GObject.registerClass(
             const main_conf_text = load_file_contents(logout_timer_main_conf_file)
             const main_conf_obj = JSON.parse(main_conf_text)
 
-            let headsUp = main_conf_obj.headsUp
+            let headsUpSecondsLeft = main_conf_obj.headsUpSecondsLeft
             let headsUpMessage = main_conf_obj.headsUpMessage
+            let preTimerText = main_conf_obj.preTimerText
 
             let lbl = new St.Label({
                 style_class: 'system-status-icon'
@@ -110,10 +110,10 @@ const Indicator = GObject.registerClass(
             (async () => {
                 while (secondsToLogOff >= 0) {
                     await sleep(1000);
-                    if (secondsToLogOff === headsUp * 60) {
+                    if (secondsToLogOff === headsUpSecondsLeft) {
 
                         // Text-input fLyttes til Config(?)
-                        let headsUpText = 'notify-send \"OBS! Tiden er snart oppe!\"';
+                        let headsUpText = `notify-send ${headsUpMessage}`;
                         // Notify user
                         GLib.spawn_command_line_async(headsUpText);
                         // Change label text color
@@ -122,7 +122,7 @@ const Indicator = GObject.registerClass(
                         this.set_style_class_name('panel-button button-background-below-treshold')
                     }
                     let formattedTime = toTimeString(secondsToLogOff)
-                    lbl.set_text(formattedTime);
+                    lbl.set_text(`${preTimerText} ${formattedTime}`);
                     secondsToLogOff--;
                 }
                 // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
