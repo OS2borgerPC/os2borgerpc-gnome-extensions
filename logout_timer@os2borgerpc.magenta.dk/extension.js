@@ -36,9 +36,11 @@ const _ = ExtensionUtils.gettext;
 // format: TIME_MINUTES=<MINUTES>
 //const logout_timers_conf_file = '/usr/share/os2borgerpc/logout_timer.conf'
 // While testing:
-const logout_timers_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.conf'
+const logout_timer_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.conf'
+const logout_timer_main_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer_main.json'
 
-/* exported arrayToString */
+// file.load_contents returns an array of guint8 - this unpacks that
+// https://docs.gtk.org/gio/method.File.load_contents.html
 function arrayToString(array) {
     if (array instanceof Uint8Array) {
         return ByteArray.toString(array);
@@ -46,12 +48,22 @@ function arrayToString(array) {
     return array.toString();
 }
 
+// Open a file and load its contents into a string
+function load_file_contents(filename) {
+    const file = Gio.file_new_for_path(filename);
+    const [result, contents] = file.load_contents(null);
+    if (!result) {
+        this.logger.error(`Could not read file: ${this.path}`);
+        throw new Errors.IoError(`JsTextFile: trying to load non-existing file ${this.path}`,
+            this.logger.error);
+    }
+    return arrayToString(contents);
+}
+
 // Prettify the counter: Only show hours and minutes if there are any of them left
 // padStart is there to add leading zeros to seconds so it shows e.g. 1:01 instead of 1:1
 function toTimeString(totalSeconds) {
     const total = new Date(totalSeconds * 1000)
-    // Debugging:
-    //GLib.spawn_command_line_async("notify-send '" + total + "'")
     // Only seconds left
     if (totalSeconds < 60) {
         return total.getUTCSeconds().toString()
@@ -69,25 +81,21 @@ function toTimeString(totalSeconds) {
 }
 
 
-
 const Indicator = GObject.registerClass(
     class Indicator extends PanelMenu.Button {
         _init() {
             super._init(0.0, _('Logout Timer'));
 
-            const file = Gio.file_new_for_path(logout_timers_conf_file);
-            const [result, contents] = file.load_contents(null);
-            if (!result) {
-                this.logger.error(`Could not read file: ${this.path}`);
-                throw new Errors.IoError(`JsTextFile: trying to load non-existing file ${this.path}`,
-                    this.logger.error);
-            }
-            let content = arrayToString(contents);
+            const logout_time = load_file_contents(logout_timer_conf_file)
 
-            let minutesToLogOff = parseInt(content.split("=")[1]);
+            let minutesToLogOff = parseInt(logout_time.split("=")[1]);
 
-            let tmpHeadsUpInputFromFile = "1";
-            let headsUp = parseInt(tmpHeadsUpInputFromFile);
+            // TODO: Join this with the other conf file, which then requires rewriting the cicero script as well
+            const main_conf_text = load_file_contents(logout_timer_main_conf_file)
+            const main_conf_obj = JSON.parse(main_conf_text)
+
+            let headsUp = main_conf_obj.headsUp
+            let headsUpMessage = main_conf_obj.headsUpMessage
 
             let lbl = new St.Label({
                 style_class: 'system-status-icon'
