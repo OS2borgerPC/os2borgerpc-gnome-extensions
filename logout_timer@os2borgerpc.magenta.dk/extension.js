@@ -50,21 +50,24 @@ function arrayToString(array) {
 // padStart is there to add leading zeros to seconds so it shows e.g. 1:01 instead of 1:1
 function toTimeString(totalSeconds) {
     const total = new Date(totalSeconds * 1000)
+    // Debugging:
+    //GLib.spawn_command_line_async("notify-send '" + total + "'")
     // Only seconds left
     if (totalSeconds < 60) {
-        return total.getSeconds().toString()
+        return total.getUTCSeconds().toString()
     }
     // Only minutes left
     else if (totalSeconds < 3600) {
-        return total.getMinutes() + ":"
-             + total.getSeconds().toString().padStart(2, "0")
+        return total.getUTCMinutes() + ":"
+             + total.getUTCSeconds().toString().padStart(2, "0")
     }
     else {
-        return total.getHours() + ":"
-            + total.getMinutes().toString().padStart(2, '0') + ":"
-            + total.getSeconds().toString().padStart(2, '0')
+        return total.getUTCHours() + ":"
+            + total.getUTCMinutes().toString().padStart(2, '0') + ":"
+            + total.getUTCSeconds().toString().padStart(2, '0')
     }
 }
+
 
 
 const Indicator = GObject.registerClass(
