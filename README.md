@@ -16,7 +16,11 @@ When developing you want the to git clone this project to your workspace like a 
 
 ```ln -s /home/$USER/<workspace>/gnome-extensions/logout_timer@os2borgerpc.magenta.dk /home/$USER/.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk```
 
-BUT... in order to see your changes you must reload your extension.
+For this we've created the following script that you need to re-run each time you create a new extension project folder.
+
+```create-symlinks-to-gnome-shell-extensions-folder.sh```
+
+NOTE THAT in order to see changes yu've made to the cdoe you need to reload your extension.
 
 > "Extensions can not be unloaded from a running instance of GNOME Shell. This can make testing incremental changes tedious. The most convenient way to test incremental changes, especially for Wayland users, is by running a nested instance of GNOME Shell. Running the following command from a terminal will start a new gnome-shell process, with its own D-Bus session:"
 
