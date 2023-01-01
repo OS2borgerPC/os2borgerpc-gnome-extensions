@@ -1,0 +1,41 @@
+# Local / User specific install
+path := "/home/$USER/.local/share/gnome-shell/extensions/"
+# Global install
+#path := "/usr/share/gnome-shell/extensions/"
+
+alias i := install
+alias ia := install-all
+alias r := restart-child-gnome-shell
+
+default:
+  @just --list
+
+# List all extensions in this repository
+list-extensions:
+  ls -l extensions/
+
+# Install specific extension(s) by name
+install +EXTENSIONS: _create-the-dir-helper
+  for extension in {{EXTENSIONS}}; do \
+    ln --symbolic --force $extension {{path}}; \
+  done
+
+# Install all extensions in the extensions directory
+install-all: _create-the-dir-helper
+  for extension in `find extensions/ -maxdepth 1 -mindepth 1`; do \
+    ln --symbolic --force $extension {{path}}; \
+  done
+
+# Close all child gnome shell windows and open a new one - for testing GNOME extensions a teeny bit more easily
+restart-child-gnome-shell:
+  # Kill any previously opened nested gnome-shell sessions
+  -pkill --full 'gnome-shell --nested --wayland'
+
+  # Also kill gnome extension windows so they don't pile up
+  -pkill --full org.gnome.Extensions
+
+  # Now create a new nested gnome-shell session
+  dbus-run-session -- gnome-shell --nested --wayland
+
+_create-the-dir-helper:
+  mkdir --parents {{path}}
