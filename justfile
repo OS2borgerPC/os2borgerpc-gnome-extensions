@@ -1,3 +1,5 @@
+#! /usr/bin/env -S just --justfile
+
 # Local / User specific install
 path := "/home/$USER/.local/share/gnome-shell/extensions/"
 # Global install
@@ -26,6 +28,7 @@ install-all: _create-the-dir-helper
     ln --symbolic --force $extension {{path}}; \
   done
 
+# Example use for this: Bind it to a hotkey, so restarting the child gnome-shell is very easy
 # Close all child gnome shell windows and open a new one - for testing GNOME extensions a teeny bit more easily
 restart-child-gnome-shell:
   # Kill any previously opened nested gnome-shell sessions
