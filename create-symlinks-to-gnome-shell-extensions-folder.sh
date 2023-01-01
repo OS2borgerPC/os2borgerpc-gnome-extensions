@@ -6,7 +6,7 @@
 # When new extention folders appear in the project you need to re-run this script.
 
 PWD="$(pwd)"
-EXT_PROJECT_FOLDERS="$(ls --directory */)"
+EXT_PROJECT_FOLDERS="$(ls --directory extensions/*)"
 
 # This is the folder where extension-folders need to be placed.
 EXT_PATH="/home/$USER/.local/share/gnome-shell/extensions/"
