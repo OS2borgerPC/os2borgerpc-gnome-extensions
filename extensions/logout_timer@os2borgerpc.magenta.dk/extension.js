@@ -32,11 +32,11 @@ const ByteArray = imports.byteArray;
 
 const _ = ExtensionUtils.gettext;
 
-// format: TIME_MINUTES=<MINUTES>
-//const logout_timers_conf_file = '/usr/share/os2borgerpc/logout_timer.conf'
+// Path to the config file:
+// In production:
+//const logout_timer_conf_file = '/usr/share/os2borgerpc/logout_timer.conf'
 // While testing:
-const logout_timer_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.conf'
-const logout_timer_main_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer_main.json'
+const logout_timer_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer_main.json'
 
 // file.load_contents returns an array of guint8 - this unpacks that
 // https://docs.gtk.org/gio/method.File.load_contents.html
@@ -85,17 +85,14 @@ const Indicator = GObject.registerClass(
         _init() {
             super._init(0.0, _('Logout Timer'));
 
-            const logout_time = load_file_contents(logout_timer_conf_file)
-
-            let minutesToLogOff = parseInt(logout_time.split("=")[1]);
-
             // TODO: Join this with the other conf file, which then requires rewriting the cicero script as well
-            const main_conf_text = load_file_contents(logout_timer_main_conf_file)
-            const main_conf_obj = JSON.parse(main_conf_text)
+            const conf_text = load_file_contents(logout_timer_conf_file)
+            const conf_obj = JSON.parse(conf_text)
 
-            let headsUpSecondsLeft = main_conf_obj.headsUpSecondsLeft
-            let headsUpMessage = main_conf_obj.headsUpMessage
-            let preTimerText = main_conf_obj.preTimerText
+            let headsUpSecondsLeft = conf_obj.headsUpSecondsLeft
+            let headsUpMessage = conf_obj.headsUpMessage
+            let preTimerText = conf_obj.preTimerText
+            let minutesToLogOff = conf_obj.timeMinutes
 
             let lbl = new St.Label({
                 style_class: 'system-status-icon'
@@ -127,7 +124,9 @@ const Indicator = GObject.registerClass(
                 }
                 // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
                 try {
+                    // In production
                     //GLib.spawn_command_line_async('gnome-session-quit --force');
+                    // While testing:
                     lbl.set_text("K.O.");
                 } catch (e) {
                     logError(e);

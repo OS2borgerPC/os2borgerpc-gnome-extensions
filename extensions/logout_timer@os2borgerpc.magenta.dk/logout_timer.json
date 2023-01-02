@@ -1,4 +1,5 @@
 {
+  "timeMinutes": 40,
   "preTimerText": "Tid",
   "headsUpSecondsLeft": 60,
   "headsUpMessage": "Du logges snart af! :O"
