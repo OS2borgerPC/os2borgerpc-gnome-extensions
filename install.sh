@@ -13,7 +13,7 @@ CHOSEN_USER=$1
 EXTENSION=$2
 INSTALL=$3
 COPY=$4
-BORGERPC=$5
+BORGERPC=${5-false}
 
 EXTENSION_REPO_BASE_PATH="$(dirname "$(realpath "$0")")/extensions"
 EXT_PROJECT_FOLDERS="$(ls --directory extensions/*)"
@@ -74,7 +74,7 @@ else
   fi
 fi
 
-if $BORGERPC; then
+if "$BORGERPC"; then
   AUTOSTART_DESKTOP_FILE="/home/.skjult/.config/autostart/enable-$EXTENSION.desktop"
 	cat <<- EOF > "$AUTOSTART_DESKTOP_FILE"
 		[Desktop Entry]
