@@ -34,9 +34,10 @@ const _ = ExtensionUtils.gettext;
 
 // Path to the config file:
 // In production:
-//const logout_timer_conf_file = '/usr/share/os2borgerpc/logout_timer.conf'
+//const logout_timer_conf_file = '/usr/share/os2borgerpc/logout_timer.json'
 // While testing:
-const logout_timer_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer_main.json'
+//const logout_timer_conf_file = '.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.json'
+const logout_timer_conf_file = '/usr/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk/logout_timer.json'
 
 // file.load_contents returns an array of guint8 - this unpacks that
 // https://docs.gtk.org/gio/method.File.load_contents.html

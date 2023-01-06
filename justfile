@@ -19,13 +19,16 @@ list-extensions:
 # Install specific extension(s) by name
 install +EXTENSIONS: _create-the-dir-helper
   for extension in {{EXTENSIONS}}; do \
-    ln --symbolic --force $extension {{path}}; \
+    ln --symbolic --force {{extension}} {{path}}; \
+    gnome-extensions enable {{extension}}
   done
+
 
 # Install all extensions in the extensions directory
 install-all: _create-the-dir-helper
   for extension in `find extensions/ -maxdepth 1 -mindepth 1`; do \
-    ln --symbolic --force $extension {{path}}; \
+    ln --symbolic --force {{extension}} {{path}}; \
+    gnome-extensions enable {{extension}}
   done
 
 # Example use for this: Bind it to a hotkey, so restarting the child gnome-shell is very easy
