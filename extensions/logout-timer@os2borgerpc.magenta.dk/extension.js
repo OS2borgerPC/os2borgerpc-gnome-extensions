@@ -18,8 +18,6 @@
 
 /* exported init */
 
-const GETTEXT_DOMAIN = 'logout-timer-extension';
-
 const { GObject, St } = imports.gi;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
@@ -35,7 +33,7 @@ const _ = ExtensionUtils.gettext;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 // Path to the config file:
-const logout_timer_conf_file = Me.dir.get_path() + '/logout_timer.json'
+const config_file = Me.dir.get_path() + '/config.json'
 
 // file.load_contents returns an array of guint8 - this unpacks that
 // https://docs.gtk.org/gio/method.File.load_contents.html
@@ -85,7 +83,7 @@ const Indicator = GObject.registerClass(
             super._init(0.0, _('Logout Timer'));
 
             // TODO: Join this with the other conf file, which then requires rewriting the cicero script as well
-            const conf_text = load_file_contents(logout_timer_conf_file)
+            const conf_text = load_file_contents(config_file)
             const conf_obj = JSON.parse(conf_text)
 
             let headsUpSecondsLeft = conf_obj.headsUpSecondsLeft
@@ -139,7 +137,7 @@ class Extension {
     constructor(uuid) {
         this._uuid = uuid;
 
-        ExtensionUtils.initTranslations(GETTEXT_DOMAIN);
+        ExtensionUtils.initTranslations();
     }
 
     enable() {
