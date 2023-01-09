@@ -46,6 +46,16 @@ function arrayToString(array) {
     return array.toString();
 }
 
+// The Gnome Shell version in Ubuntu 20.04 does not have setInterval. 22.04 does, though.
+// ...so it's reinvented here with glib's timeout_add, courtesy of
+// https://dontreinventbicycle.com/gjs-set-timeout-interval.html
+function setInterval(func, delay, ...args) {
+    const wrappedFunc = () => {
+        return func.apply(this, args) || true;
+    };
+    return GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, wrappedFunc);
+}
+
 // Open a file and load its contents into a string
 function load_file_contents(filename) {
     const file = Gio.file_new_for_path(filename);
@@ -117,7 +127,7 @@ const Indicator = GObject.registerClass(
         }
 
         _init() {
-            super._init(0.0, _('Logout Timer'));
+            super._init(0.0, 'Logout Timer');
 
             const conf = JSON.parse(load_file_contents(config_file))
 
