@@ -80,18 +80,15 @@ function toTimeString(totalSeconds) {
 
 
 
-function headsUp(lbl, msg) {
+function headsUp(msg, indicator) {
     //Object.keys(indicator).forEach((prop)=> console.log(prop));
+    indicator.add_style_class_name('below-threshold')
 
     const headsUpText = `notify-send "${msg}"`;
     // Notify user
     GLib.spawn_command_line_async(headsUpText);
     // Change label text color
-    //lbl.set_style_class_name('system-status-icon label-text-below-treshold')
-    lbl.set_style_class_name('system-status-icon label-text-below-threshold button-background-below-threshold panel-button')
-    // Change panelbutton background color
-    // TODO: Reference to "this" no longer has the relevant method!
-    //this.set_style_class_name('panel-button button-background-below-threshold')
+    //lbl.add_style_class_name('label-text-below-threshold button-background-below-threshold panel-button')
 }
 
 var secondsToLogOff = NaN
@@ -99,12 +96,11 @@ var secondsToLogOff = NaN
 const Indicator = GObject.registerClass(
     class Indicator extends PanelMenu.Button {
 
-        reduceCounter(lbl, headsUpSecondsLeft, headsUpMessage, preTimerText) {
+        reduceCounter(lbl, headsUpSecondsLeft, headsUpMessage, preTimerText, indicator) {
             if (secondsToLogOff >= 0) {
                 if (secondsToLogOff === headsUpSecondsLeft) {
 
-                    headsUp(lbl, headsUpMessage)
-
+                    headsUp(headsUpMessage, indicator)
                 }
                 let formattedTime = toTimeString(secondsToLogOff)
                 lbl.set_text(`${preTimerText} ${formattedTime}`);
@@ -116,7 +112,7 @@ const Indicator = GObject.registerClass(
                 // In production
                 //GLib.spawn_command_line_async('gnome-session-quit --force');
                 // While testing:
-                lbl.set_text("K.O.");
+                lbl.set_text('K.O.');
             }
         }
 
@@ -134,9 +130,10 @@ const Indicator = GObject.registerClass(
                 style_class: 'system-status-icon'
             })
             this.add_child(lbl);
+            this.add_style_class_name('logout-button')
 
             secondsToLogOff = minutesToLogOff * 60;
-            counter = setInterval(this.reduceCounter, 1000, lbl, headsUpSecondsLeft, headsUpMessage, preTimerText)
+            counter = setInterval(this.reduceCounter, 1000, lbl, headsUpSecondsLeft, headsUpMessage, preTimerText, this)
         }
 
     });
