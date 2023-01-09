@@ -15,8 +15,9 @@ INSTALL=$3
 COPY=$4
 BORGERPC=${5-false}
 
-EXTENSION_REPO_BASE_PATH="$(dirname "$(realpath "$0")")/extensions"
-EXT_PROJECT_FOLDERS="$(ls --directory extensions/*)"
+EXT_REPO_BASE_PATH="$(dirname "$(realpath "$0")")/extensions"
+cd "$EXT_REPO_BASE_PATH" || exit 1
+EXT_PROJECT_FOLDERS="$(ls --directory ./*)"
 
 # This is the folder where extension-folders need to be placed.
 #EXT_INSTALL_BASE_PATH_LOCAL="/home/$CHOSEN_USER/.local/share/gnome-shell/extensions/"
@@ -50,9 +51,9 @@ if [ "$EXTENSION" = "all" ]; then
   for EXTENSION in $EXT_PROJECT_FOLDERS; do
     if "$INSTALL"; then
       if ! "$COPY"; then # Practical for development
-        ln --symbolic --force "$EXTENSION_REPO_BASE_PATH/$EXTENSION" "$EXT_INSTALL_BASE_PATH"
+        ln --symbolic --force "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
       else # Better for installation
-        cp -r "$EXTENSION_REPO_BASE_PATH/$EXTENSION" "$EXT_INSTALL_BASE_PATH"
+        cp -r "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
       fi
     else
       rm --force "$CWD/$EXTENSION"
@@ -62,12 +63,12 @@ if [ "$EXTENSION" = "all" ]; then
 else
   if "$INSTALL"; then
     if ! "$COPY"; then
-      ln --symbolic --force "$EXTENSION_REPO_BASE_PATH/$EXTENSION" "$EXT_INSTALL_BASE_PATH"
+      ln --symbolic --force "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
     else
-      cp -r "$EXTENSION_REPO_BASE_PATH/$EXTENSION" "$EXT_INSTALL_BASE_PATH"
+      cp -r "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
     fi
   else
-    rm --force "$EXTENSION_REPO_BASE_PATH/$EXTENSION"
+    rm --force "$EXTENSION"
     gnome_extension_enable_disable "$EXTENSION" false
   fi
 fi
