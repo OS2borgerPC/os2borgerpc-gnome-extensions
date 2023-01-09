@@ -3,7 +3,7 @@
   "description": "Countdown and log user out after n minutes.",
   "uuid": "logout-timer@os2borgerpc.magenta.dk",
   "version": 1.0,
-  "shell-version": [ "3.36", "43" ],
+  "shell-version": [ "3.36", "42.5", "43" ],
   "gettext-domain": "LogoutTimer",
   "url": "https://magenta.dk"
 }
