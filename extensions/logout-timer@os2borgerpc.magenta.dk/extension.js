@@ -36,6 +36,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const config_file = Me.dir.get_path() + '/config.json'
 
 counter = null
+secondsToLogOff = null
 
 // file.load_contents returns an array of guint8 - this unpacks that
 // https://docs.gtk.org/gio/method.File.load_contents.html
@@ -46,7 +47,7 @@ function arrayToString(array) {
     return array.toString();
 }
 
-// The Gnome Shell version in Ubuntu 20.04 does not have setInterval. 22.04 does, though.
+// The Gnome Shell version in Ubuntu 20.04 does not have setInterval/clearInterval. 22.04 does, though.
 // ...so it's reinvented here with glib's timeout_add, courtesy of
 // https://dontreinventbicycle.com/gjs-set-timeout-interval.html
 function setInterval(func, delay, ...args) {
@@ -55,6 +56,7 @@ function setInterval(func, delay, ...args) {
     };
     return GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, wrappedFunc);
 }
+var clearInterval = GLib.Source.remove;
 
 // Open a file and load its contents into a string
 function load_file_contents(filename) {
@@ -88,8 +90,6 @@ function toTimeString(totalSeconds) {
     }
 }
 
-
-
 function headsUp(msg, indicator) {
     //Object.keys(indicator).forEach((prop)=> console.log(prop));
     indicator.add_style_class_name('below-threshold')
@@ -101,12 +101,10 @@ function headsUp(msg, indicator) {
     //lbl.add_style_class_name('label-text-below-threshold button-background-below-threshold panel-button')
 }
 
-var secondsToLogOff = NaN
-
 const Indicator = GObject.registerClass(
     class Indicator extends PanelMenu.Button {
 
-        reduceCounter(lbl, headsUpSecondsLeft, headsUpMessage, preTimerText, indicator) {
+        countdown(lbl, headsUpSecondsLeft, headsUpMessage, preTimerText, indicator) {
             if (secondsToLogOff >= 0) {
                 if (secondsToLogOff === headsUpSecondsLeft) {
 
@@ -118,8 +116,8 @@ const Indicator = GObject.registerClass(
             }
             else {
                 clearInterval(counter)
-                // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
                 // In production
+                // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
                 //GLib.spawn_command_line_async('gnome-session-quit --force');
                 // While testing:
                 lbl.set_text('K.O.');
@@ -129,12 +127,8 @@ const Indicator = GObject.registerClass(
         _init() {
             super._init(0.0, 'Logout Timer');
 
+            // Open and parse config file, and load it into variables
             const conf = JSON.parse(load_file_contents(config_file))
-
-            const headsUpSecondsLeft = conf.headsUpSecondsLeft
-            const headsUpMessage = conf.headsUpMessage
-            const preTimerText = conf.preTimerText
-            const minutesToLogOff = conf.timeMinutes
 
             let lbl = new St.Label({
                 style_class: 'system-status-icon'
@@ -142,8 +136,8 @@ const Indicator = GObject.registerClass(
             this.add_child(lbl);
             this.add_style_class_name('logout-button')
 
-            secondsToLogOff = minutesToLogOff * 60;
-            counter = setInterval(this.reduceCounter, 1000, lbl, headsUpSecondsLeft, headsUpMessage, preTimerText, this)
+            secondsToLogOff = conf.timeMinutes * 60;
+            counter = setInterval(this.countdown, 1000, lbl, conf.headsUpSecondsLeft, conf.headsUpMessage, conf.preTimerText, this)
         }
 
     });
