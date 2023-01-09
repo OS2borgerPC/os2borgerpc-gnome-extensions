@@ -29,8 +29,8 @@ help() {
   exit 1
 }
 
-# TODO: The user needs to logout before it takes effect, and it seemingly also cannot be enabled before that login has
-# happened. So maybe we need to create a .config/autostart desktop file for user which enables it?
+# We could enable the extension from here as well, but that doesn't work because the user needs to log out first.
+# Unless we find the relevant command to live-reload gnome extensions, like dconf update
 gnome_extension_enable_disable() {
   EXTENSION=$1
   ENABLE=$2
@@ -54,7 +54,6 @@ if [ "$EXTENSION" = "all" ]; then
       else # Better for installation
         cp -r "$EXTENSION_REPO_BASE_PATH/$EXTENSION" "$EXT_INSTALL_BASE_PATH"
       fi
-      gnome_extension_enable_disable "$EXTENSION" true
     else
       rm --force "$CWD/$EXTENSION"
       gnome_extension_enable_disable "$EXTENSION" false
@@ -67,7 +66,6 @@ else
     else
       cp -r "$EXTENSION_REPO_BASE_PATH/$EXTENSION" "$EXT_INSTALL_BASE_PATH"
     fi
-    gnome_extension_enable_disable "$EXTENSION" true
   else
     rm --force "$EXTENSION_REPO_BASE_PATH/$EXTENSION"
     gnome_extension_enable_disable "$EXTENSION" false

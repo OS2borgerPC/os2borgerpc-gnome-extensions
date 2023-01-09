@@ -35,6 +35,8 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 // Path to the config file:
 const config_file = Me.dir.get_path() + '/config.json'
 
+counter = null
+
 // file.load_contents returns an array of guint8 - this unpacks that
 // https://docs.gtk.org/gio/method.File.load_contents.html
 function arrayToString(array) {
@@ -77,60 +79,66 @@ function toTimeString(totalSeconds) {
 }
 
 
+
+function headsUp(lbl, msg) {
+    //Object.keys(indicator).forEach((prop)=> console.log(prop));
+
+    const headsUpText = `notify-send "${msg}"`;
+    // Notify user
+    GLib.spawn_command_line_async(headsUpText);
+    // Change label text color
+    //lbl.set_style_class_name('system-status-icon label-text-below-treshold')
+    lbl.set_style_class_name('system-status-icon label-text-below-threshold button-background-below-threshold panel-button')
+    // Change panelbutton background color
+    // TODO: Reference to "this" no longer has the relevant method!
+    //this.set_style_class_name('panel-button button-background-below-threshold')
+}
+
+var secondsToLogOff = NaN
+
 const Indicator = GObject.registerClass(
     class Indicator extends PanelMenu.Button {
+
+        reduceCounter(lbl, headsUpSecondsLeft, headsUpMessage, preTimerText) {
+            if (secondsToLogOff >= 0) {
+                if (secondsToLogOff === headsUpSecondsLeft) {
+
+                    headsUp(lbl, headsUpMessage)
+
+                }
+                let formattedTime = toTimeString(secondsToLogOff)
+                lbl.set_text(`${preTimerText} ${formattedTime}`);
+                secondsToLogOff--;
+            }
+            else {
+                clearInterval(counter)
+                // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
+                // In production
+                //GLib.spawn_command_line_async('gnome-session-quit --force');
+                // While testing:
+                lbl.set_text("K.O.");
+            }
+        }
+
         _init() {
             super._init(0.0, _('Logout Timer'));
 
-            // TODO: Join this with the other conf file, which then requires rewriting the cicero script as well
-            const conf_text = load_file_contents(config_file)
-            const conf_obj = JSON.parse(conf_text)
+            const conf = JSON.parse(load_file_contents(config_file))
 
-            let headsUpSecondsLeft = conf_obj.headsUpSecondsLeft
-            let headsUpMessage = conf_obj.headsUpMessage
-            let preTimerText = conf_obj.preTimerText
-            let minutesToLogOff = conf_obj.timeMinutes
+            const headsUpSecondsLeft = conf.headsUpSecondsLeft
+            const headsUpMessage = conf.headsUpMessage
+            const preTimerText = conf.preTimerText
+            const minutesToLogOff = conf.timeMinutes
 
             let lbl = new St.Label({
                 style_class: 'system-status-icon'
             })
             this.add_child(lbl);
 
-            function sleep(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
-
-            let secondsToLogOff = minutesToLogOff * 60;
-            (async () => {
-                while (secondsToLogOff >= 0) {
-                    await sleep(1000);
-                    if (secondsToLogOff === headsUpSecondsLeft) {
-
-                        // Text-input fLyttes til Config(?)
-                        let headsUpText = `notify-send ${headsUpMessage}`;
-                        // Notify user
-                        GLib.spawn_command_line_async(headsUpText);
-                        // Change label text color
-                        lbl.set_style_class_name('system-status-icon label-text-below-treshold')
-                        // Change panelbutton background color
-                        this.set_style_class_name('panel-button button-background-below-treshold')
-                    }
-                    let formattedTime = toTimeString(secondsToLogOff)
-                    lbl.set_text(`${preTimerText} ${formattedTime}`);
-                    secondsToLogOff--;
-                }
-                // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
-                try {
-                    // In production
-                    //GLib.spawn_command_line_async('gnome-session-quit --force');
-                    // While testing:
-                    lbl.set_text("K.O.");
-                } catch (e) {
-                    logError(e);
-                }
-
-            })();
+            secondsToLogOff = minutesToLogOff * 60;
+            counter = setInterval(this.reduceCounter, 1000, lbl, headsUpSecondsLeft, headsUpMessage, preTimerText)
         }
+
     });
 
 class Extension {
@@ -148,6 +156,8 @@ class Extension {
     disable() {
         this._indicator.destroy();
         this._indicator = null;
+        clearInterval(counter)
+        //GLib.spawn_command_line_async('gnome-session-quit --force');
     }
 }
 
