@@ -25,7 +25,7 @@ EXT_INSTALL_BASE_PATH=$EXT_INSTALL_BASE_PATH_GLOBAL
 
 help() {
   printf "%s\n" "Usage: ./install.sh <USERNAME> <EXTENSION_NAME/all> <INSTALL (boolean)> <COPY (boolean)> <BorgerPC (boolean)>" \
-                "Example: ./install.sh someuser logout_timer@os2borgerpc.magenta.dk true true true"
+                "Example: ./install.sh someuser logout-timer@os2borgerpc.magenta.dk true true true"
   exit 1
 }
 
@@ -74,6 +74,7 @@ fi
 
 if "$BORGERPC"; then
   AUTOSTART_DESKTOP_FILE="/home/.skjult/.config/autostart/enable-$EXTENSION.desktop"
+  mkdir --parents "$(dirname "$AUTOSTART_DESKTOP_FILE")"
 	cat <<- EOF > "$AUTOSTART_DESKTOP_FILE"
 		[Desktop Entry]
 		Type=Application
