@@ -42,25 +42,28 @@ gnome_extension_enable_disable() {
     ENABLE_DISABLE=disable
   fi
 
-  su --login $CHOSEN_USER --command "DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u $CHOSEN_USER)/bus" gnome-extensions $ENABLE_DISABLE $EXTENSION"
+  runuser --login "$CHOSEN_USER" --command "XDG_RUNTIME_DIR=/run/user/$(id -u "$CHOSEN_USER") gnome-extensions $ENABLE_DISABLE $EXTENSION"
 }
 
 [ $# -lt 3 ] && help
 
 if [ "$EXTENSION" = "all" ]; then
   for EXTENSION in $EXT_PROJECT_FOLDERS; do
+    AUTOSTART_DESKTOP_FILE="/home/.skjult/.config/autostart/enable-$EXTENSION.desktop"
     if "$INSTALL"; then
       if ! "$COPY"; then # Practical for development
         ln --symbolic --force "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
+        # Would like to enable the extensino here, but it will fail anyway, at least if it's a knew one. A GNOME restart is needed first.
       else # Better for installation
         cp -r "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
       fi
     else
-      rm --force "$CWD/$EXTENSION"
+      rm --force "$CWD/$EXTENSION" "$AUTOSTART_DESKTOP_FILE"
       gnome_extension_enable_disable "$EXTENSION" false
     fi
   done
 else
+  AUTOSTART_DESKTOP_FILE="/home/.skjult/.config/autostart/enable-$EXTENSION.desktop"
   if "$INSTALL"; then
     if ! "$COPY"; then
       ln --symbolic --force "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
@@ -68,13 +71,12 @@ else
       cp -r "$EXTENSION" "$EXT_INSTALL_BASE_PATH"
     fi
   else
-    rm --force "$EXTENSION"
+    rm --force "$EXTENSION" "$AUTOSTART_DESKTOP_FILE"
     gnome_extension_enable_disable "$EXTENSION" false
   fi
 fi
 
 if "$BORGERPC"; then
-  AUTOSTART_DESKTOP_FILE="/home/.skjult/.config/autostart/enable-$EXTENSION.desktop"
   mkdir --parents "$(dirname "$AUTOSTART_DESKTOP_FILE")"
 	cat <<- EOF > "$AUTOSTART_DESKTOP_FILE"
 		[Desktop Entry]
