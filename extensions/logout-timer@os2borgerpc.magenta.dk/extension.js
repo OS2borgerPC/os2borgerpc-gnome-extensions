@@ -107,7 +107,6 @@ const Indicator = GObject.registerClass(
         countdown(lbl, headsUpSecondsLeft, headsUpMessage, preTimerText, indicator) {
             if (secondsToLogOff >= 0) {
                 if (secondsToLogOff === headsUpSecondsLeft) {
-
                     headsUp(headsUpMessage, indicator)
                 }
                 let formattedTime = toTimeString(secondsToLogOff)
@@ -118,9 +117,9 @@ const Indicator = GObject.registerClass(
                 clearInterval(counter)
                 // In production
                 // Ref: https://gjs.guide/guides/gio/subprocesses.html#asynchronous-communication
-                //GLib.spawn_command_line_async('gnome-session-quit --force');
+                GLib.spawn_command_line_async('gnome-session-quit --force');
                 // While testing:
-                lbl.set_text('K.O.');
+                //lbl.set_text('K.O.');
             }
         }
 
