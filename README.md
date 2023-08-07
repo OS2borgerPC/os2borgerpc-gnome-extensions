@@ -8,22 +8,42 @@
 
 # Development
 
-In order to activate/deactivate a given extension the project folder must be placed in the gnome-shell extention folder:
+In order to activate/deactivate a given extension, the project folder must be placed in the gnome-shell extension directory:
 
-```/home/$USER/.local/share/gnome-shell/extensions/```
+`/home/$USER/.local/share/gnome-shell/extensions/`
 
-When developing you want the to git clone this project to your workspace like a normal person, and then create symlinks to avoid copying the given project-folder from your workspace to the gnome-shell extension folder each time you make change, e.g. like so:
+...or globally:
 
-```ln -s /home/$USER/<workspace>/gnome-extensions/logout_timer@os2borgerpc.magenta.dk /home/$USER/.local/share/gnome-shell/extensions/logout_timer@os2borgerpc.magenta.dk```
+`/usr/share/gnome-shell/extensions/`
 
-For this we've created the following script that you need to re-run each time you create a new extension project folder.
+When developing you can clone this project to somewhere under your home directory, and then create symlinks in there to avoid copying
+the given project-folder from your workspace to the gnome-shell extension folder each time you make change, e.g. like so:
 
-```create-symlinks-to-gnome-shell-extensions-folder.sh```
+```bash
+ln -s /home/$USER/<workspace>/os2borgerpc-gnome-extensions/logout_timer@os2borgerpc.magenta.dk /home/$USER/.local/share/gnome-shell/extensions/
+```
 
-NOTE THAT in order to see changes yu've made to the cdoe you need to reload your extension.
+For this we've created a `justfile` containing various commands, some of which you need to re-run each time you create a new extension project folder.
+Read more about `just` [here](https://github.com/casey/just/).
+
+To install all extensions in the repo via `just`:
+```bash
+just install-all
+```
+
+To install a specific extension from the repo:
+```bash
+just install logout_timer@os2borgerpc.magenta.dk
+```
+
+NOTE THAT in order to see changes you've made to the code, you need to reload the extension.
 
 > "Extensions can not be unloaded from a running instance of GNOME Shell. This can make testing incremental changes tedious. The most convenient way to test incremental changes, especially for Wayland users, is by running a nested instance of GNOME Shell. Running the following command from a terminal will start a new gnome-shell process, with its own D-Bus session:"
 
-```dbus-run-session -- gnome-shell --nested --wayland```
+The `justfile` has a command for that:
 
-Read more about debugging [HERE](https://gjs.guide/extensions/development/debugging.html)
+```bash
+just restart-child-gnome-shell
+```
+
+Read more about GNOME extension debugging [HERE](https://gjs.guide/extensions/development/debugging.html).
